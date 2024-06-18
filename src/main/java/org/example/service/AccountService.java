@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.example.entity.*;
 import org.example.entity.dto.AccountDto;
+import org.example.entity.dto.ClientDto;
 import org.example.entity.factory.AccountFactory;
 import org.example.repository.*;
 import org.example.utils.enums.ClientsType;
@@ -107,6 +108,26 @@ public class AccountService {
         accountRepository.deleteById(id);
         log.info("account with {} was removed", id);
 
+    }
+
+    public void updateAccount(Long id, AccountDto accountDto) {
+        Account account = accountRepository.findById(id).orElseThrow(() -> {
+            log.error("Current account is not exists");
+            return new NoSuchElementException();
+        });
+        if (accountRepository.findAccountByAccountNumber(account.getAccountNumber()).isPresent()
+                && !account.getAccountNumber().equals(accountDto.getAccountNumber())) {
+            log.error("Account with name {} is exist", accountDto.getAccountNumber());
+            return;
+        }
+
+        if (accountDto.getAccountNumber() != null)
+            account.setAccountNumber(accountDto.getAccountNumber());
+        if (accountDto.getValue() != null)
+            account.setValue(accountDto.getValue());
+        if (accountDto.getCurrency() != null)
+            account.setCurrency(accountDto.getCurrency());
+        log.info("Client {} was updated", account.getAccountNumber());
     }
 
     @Transactional(readOnly = true)

@@ -59,20 +59,23 @@ public class BankService {
     }
 
     public void updateBank(Long id, BankDto bankDto) {
-        if (bankRepository.findBankByName(bankDto.getName()).isPresent()) {
+        Bank bank = bankRepository.findById(id).orElseThrow(() -> {
+            log.error("Current bank is not exists");
+            return new NoSuchElementException();
+        });
+        if (bankRepository.findBankByName(bankDto.getName()).isPresent()
+                && !bankRepository.findBankByName(bankDto.getName()).get().getName().equals(bank.getName())) {
             log.error("Bank with name {} is exist", bankDto.getName());
             return;
         }
-        bankRepository.findById(id).ifPresentOrElse(client -> {
-            if (bankDto.getName() != null)
-                client.setName(bankDto.getName());
-            if (bankDto.getIndividualCommission() != null)
-                client.setIndividualCommission(bankDto.getIndividualCommission());
-            if (bankDto.getLegalCommission() != null)
-                client.setLegalCommission(bankDto.getLegalCommission());
-        }, () -> {
-            throw new NoSuchElementException();
-        });
+        if (check(bankDto) == null) return;
+        if (bankDto.getName() != null)
+            bank.setName(bankDto.getName());
+        if (bankDto.getIndividualCommission() != null)
+            bank.setIndividualCommission(bankDto.getIndividualCommission());
+        if (bankDto.getLegalCommission() != null)
+            bank.setLegalCommission(bankDto.getLegalCommission());
+        log.info("Bank {} was updated", bank.getName());
     }
 
     public void deleteBank(Long id) {

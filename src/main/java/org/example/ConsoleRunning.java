@@ -17,6 +17,8 @@ import org.springframework.context.ApplicationContext;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 @Slf4j
@@ -31,8 +33,11 @@ public class ConsoleRunning {
     private final static String HELP = "interaction with the application occurs through the console/terminal.\n" +
             "Command format: command param1 param2 ... paramN\n" +
             "addAccount [accountNumber] [moneyValue] [currency] [clientId] [bankId]\n" +
+            "updateAccount [accountId] [accountNumber] [moneyValue] [currency] [clientId] [bankId]\n" +
             "addClient [clientName] [clientType]\n" +
+            "updateClient [clientId] [clientName] [clientType]\n" +
             "addBank [bankName] [individualCommission] [legalCommission]\n" +
+            "updateBank [bankId] [bankName] [individualCommission] [legalCommission]\n" +
             "removeAccount [accountId]\n" +
             "removeClient [clientId]\n" +
             "removeBank [bankId]\n" +
@@ -102,6 +107,15 @@ public class ConsoleRunning {
                     break;
                 case "getTransactions":
                     getTransactions(commandArgs);
+                    break;
+                case "updateBank":
+                    updateBank(commandArgs);
+                    break;
+                case "updateAccount":
+                    updateAccount(commandArgs);
+                    break;
+                case "updateClient":
+                    updateClient(commandArgs);
                     break;
                 case "exit":
                     System.out.println("\nThank you for choosing Bank Of Java.");
@@ -311,6 +325,60 @@ public class ConsoleRunning {
         try {
             Long id = Long.valueOf(commandArgs[1]);
             clientService.deleteClient(id);
+        } catch (Exception e) {
+            log.error(ILLEGAL_ARGUMENT);
+        }
+    }
+
+    private static void updateClient(String[] commandArgs) {
+        if (commandArgs.length != 4) {
+            log.error(ILLEGAL_ARGUMENT);
+            return;
+        }
+        try {
+            Long id = Long.valueOf(commandArgs[1]);
+            String name = commandArgs[2];
+            ClientsType type = ClientsType.valueOf(commandArgs[3].toUpperCase());
+            ClientDto clientDto = new ClientDto(name, type);
+            clientService.updateClient(id, clientDto);
+
+        } catch (Exception e) {
+            log.error(ILLEGAL_ARGUMENT);
+        }
+    }
+
+    private static void updateAccount(String[] commandArgs) {
+        if (commandArgs.length != 5) {
+            log.error(ILLEGAL_ARGUMENT);
+            return;
+        }
+        try {
+            Long accountId = Long.valueOf(commandArgs[1]);
+            String accountNumber = commandArgs[2];
+            Double value = Double.valueOf(commandArgs[3]);
+            Currency currency = Currency.valueOf(commandArgs[4].toUpperCase());
+            AccountDto dto = new AccountDto();
+            dto.setAccountNumber(accountNumber);
+            dto.setValue(value);
+            dto.setCurrency(currency);
+//            accountService.updateAccount(accountId,dto);
+        } catch (Exception e) {
+            log.error(ILLEGAL_ARGUMENT);
+        }
+    }
+
+    private static void updateBank(String[] commandArgs) {
+        if (commandArgs.length != 5) {
+            log.error(ILLEGAL_ARGUMENT);
+            return;
+        }
+        try {
+            Long bankId = Long.valueOf(commandArgs[1]);
+            String name = commandArgs[2];
+            Double individualCommission = Double.valueOf(commandArgs[3]);
+            Double legalCommission = Double.valueOf(commandArgs[4]);
+            BankDto bankDto = new BankDto(name, individualCommission, legalCommission);
+            bankService.updateBank(bankId, bankDto);
         } catch (Exception e) {
             log.error(ILLEGAL_ARGUMENT);
         }

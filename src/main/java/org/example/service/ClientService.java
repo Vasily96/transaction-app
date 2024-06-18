@@ -3,6 +3,7 @@ package org.example.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.entity.Bank;
 import org.example.entity.Client;
 import org.example.entity.dto.ClientDto;
 import org.example.entity.factory.ClientFactory;
@@ -58,18 +59,21 @@ public class ClientService {
     }
 
     public void updateClient(Long id, ClientDto clientDto) {
-        if (clientRepository.findClientByName(clientDto.getName()).isPresent()) {
+        Client client = clientRepository.findById(id).orElseThrow(() -> {
+            log.error("Current client is not exists");
+            return new NoSuchElementException();
+        });
+        if (clientRepository.findClientByName(clientDto.getName()).isPresent()
+                && !client.getName().equals(clientDto.getName())) {
             log.error("Client with name {} is exist", clientDto.getName());
             return;
         }
-        clientRepository.findById(id).ifPresentOrElse(client -> {
-            if (clientDto.getName() != null)
-                client.setName(clientDto.getName());
-            if (clientDto.getType() != null)
-                client.setType(clientDto.getType());
-        }, () -> {
-            throw new NoSuchElementException();
-        });
+
+        if (clientDto.getName() != null)
+            client.setName(clientDto.getName());
+        if (clientDto.getType() != null)
+            client.setType(clientDto.getType());
+        log.info("Client {} was updated", client.getName());
     }
 
     public void deleteClient(Long id) {

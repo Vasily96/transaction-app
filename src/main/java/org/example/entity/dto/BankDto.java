@@ -1,9 +1,6 @@
 package org.example.entity.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,8 +14,10 @@ public class BankDto {
     @Size(min = 3)
     private String name;
     @Min(0)
+    @Max(50)
     private Double individualCommission;
     @Min(0)
+    @Max(50)
     private Double legalCommission;
 
 }
